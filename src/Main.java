@@ -1,350 +1,138 @@
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
+import java.io.IOException;
+import java.util.Scanner;
 
 public class Main {
+  public static void main(String[] args) throws IOException {
 
-  private final List<List<Cell>> Cells = new ArrayList<>();
-  private final int size;
-  private final List<Cell> heads = new ArrayList<>();
+    boolean stop1 = false;
+    Scanner sc = new Scanner(System.in);
+    int size = 0;
+    int number = 0;
+    String planeType = "";
 
-  public Main(int size) {
-    this.size = size;
-  }
-
-  public void initializeCells() {
-    for (int i = 0; i < size; i++) {
-      Cells.add(new ArrayList<>());
-      for (int j = 0; j < size; j++) {
-        int x = j + 1;
-        int y = 10 - i;
-        Cell newCell = new Cell(x, y);
-        Cells.get(i).add(newCell);
-      }
-    }
-    generatePlanes();
-  }
-
-  private void clickAllCells() {
-    for (int x = 1; x <= size; x++) {
-      for (int y = 1; y <= size; y++) {
-        Click(x, y);
-      }
-    }
-  }
-
-  public void printFinal() {
-    clickAllCells();
-    printCells();
-  }
-
-  public void printCells() {
-    for (int i = 0; i < size; i++) {
-      if ((size - i) >= 10) {
-        System.out.print((size - i) + " ");
-      } else System.out.print((size - i) + "  ");
-      for (int j = 0; j < size; j++) {
-        Cell cell = Cells.get(i).get(j);
-        if (cell.isClicked) {
-          cell.printReal();
-        } else cell.print();
-      }
-      System.out.println();
-    }
-    System.out.print("   ");
-    for (int i = 1; i <= size; i++) {
-      if (i >= 10) {
-        System.out.print(" " + i + "");
-      } else System.out.print(" " + i + " ");
-    }
-    System.out.println();
-  }
-
-  private boolean checkLeft(Cell head) {
-    int x = head.x;
-    int y = head.y;
-    for (int i = -2; i <= 2; i++) {
+    // read size
+    while (!stop1) {
+      System.out.println("Please input size of the board:");
+      String sizeInput = sc.nextLine();
       try {
-        Cell cellTest = getCell(x - 1, y + i);
-        if (cellTest.isHead || cellTest.isPlane) {
-          return false;
-        }
-      } catch (IndexOutOfBoundsException e) {
-        return false;
+        size = Integer.parseInt(sizeInput);
+        if (size < 5) {
+          System.out.println("Not a valid size. Please try again.");
+        } else stop1 = true;
+      } catch (Exception e) {
+        System.out.println("Not a number, please try again.");
       }
     }
-    try {
-      Cell cellTest = getCell(x - 2, y);
-      if (cellTest.isHead || cellTest.isPlane) {
-        return false;
-      }
-    } catch (IndexOutOfBoundsException e) {
-      return false;
-    }
+    stop1 = false;
 
-    for (int i = -1; i <= 1; i++) {
+    // read number of planes
+    while (!stop1) {
+      System.out.println("Please input number of planes:");
+      String numberString = sc.nextLine();
       try {
-        Cell cellTest = getCell(x -3, y + i);
-        if (cellTest.isHead || cellTest.isPlane) {
-          return false;
-        }
-      } catch (IndexOutOfBoundsException e) {
-        return false;
+        number = Integer.parseInt(numberString);
+        if (number < 1) {
+          System.out.println("Not a valid number. Please try again.");
+        } else stop1 = true;
+      } catch (Exception e) {
+        System.out.println("Not a number. Please try again.");
       }
     }
-    return true;
-  }
 
-  private boolean checkRight(Cell head) {
-    int x = head.x;
-    int y = head.y;
-    for (int i = -2; i <= 2; i++) {
+    // read planesType
+    stop1 = false;
+    while (!stop1) {
+      System.out.println(
+              """
+                      Please choose types of planes:
+                      1. All type 1
+                      2. All type 2
+                      3. All type 3
+                      4. 1 & 2
+                      5. 2 & 3
+                      6. 1 & 3
+                      7. 1 & 2 & 3
+                      8. Random """);
+      String typesString = sc.nextLine();
       try {
-        Cell cellTest = getCell(x + 1, y + i);
-        if (cellTest.isHead || cellTest.isPlane) {
-          return false;
-        }
-      } catch (IndexOutOfBoundsException e) {
-        return false;
-      }
-    }
-    try {
-      Cell cellTest = getCell(x + 2, y);
-      if (cellTest.isHead || cellTest.isPlane) {
-        return false;
-      }
-    } catch (IndexOutOfBoundsException e) {
-      return false;
-    }
-
-    for (int i = -1; i <= 1; i++) {
-      try {
-        Cell cellTest = getCell(x + 3, y + i);
-        if (cellTest.isHead || cellTest.isPlane) {
-          return false;
-        }
-      } catch (IndexOutOfBoundsException e) {
-        return false;
-      }
-    }
-    return true;
-  }
-
-  private boolean checkUp(Cell head) {
-    int x = head.x;
-    int y = head.y;
-    for (int i = -2; i <= 2; i++) {
-      try {
-        Cell cellTest = getCell(x + i, y + 1);
-        if (cellTest.isHead || cellTest.isPlane) {
-          return false;
-        }
-      } catch (IndexOutOfBoundsException e) {
-        return false;
-      }
-    }
-    try {
-      Cell cellTest = getCell(x, y + 2);
-      if (cellTest.isHead || cellTest.isPlane) {
-        return false;
-      }
-    } catch (IndexOutOfBoundsException e) {
-      return false;
-    }
-
-    for (int i = -1; i <= 1; i++) {
-      try {
-        Cell cellTest = getCell(x + i, y + 3);
-        if (cellTest.isHead || cellTest.isPlane) {
-          return false;
-        }
-      } catch (IndexOutOfBoundsException e) {
-        return false;
-      }
-    }
-    return true;
-  }
-
-  private boolean checkDown(Cell head) {
-    int x = head.x;
-    int y = head.y;
-    for (int i = -2; i <= 2; i++) {
-      try {
-        Cell cellTest = getCell(x + i, y - 1);
-        if (cellTest.isHead || cellTest.isPlane) {
-          return false;
-        }
-      } catch (IndexOutOfBoundsException e) {
-        return false;
-      }
-    }
-    try {
-      Cell cellTest = getCell(x, y - 2);
-      if (cellTest.isHead || cellTest.isPlane) {
-        return false;
-      }
-    } catch (IndexOutOfBoundsException e) {
-      return false;
-    }
-
-    for (int i = -1; i <= 1; i++) {
-      try {
-        Cell cellTest =getCell(x + i, y - 3);
-        if (cellTest.isHead || cellTest.isPlane) {
-          return false;
-        }
-      } catch (IndexOutOfBoundsException e) {
-        return false;
-      }
-    }
-    return true;
-  }
-
-  private boolean checkHead(Cell head) {
-    return !(head.isHead || head.isPlane);
-  }
-
-  private void setPlaneLeft(Cell head) {
-    head.setHead();
-    int x = head.x;
-    int y = head.y;
-    for (int i = -2; i <= 2; i++) {
-        Cell cell = getCell(x - 1, y + i);
-        cell.setPlane();
-      }
-    Cell cellMiddle = getCell(x - 2, y);
-    cellMiddle.setPlane();
-    for (int i = -1; i <= 1; i++) {
-        Cell cell = getCell(x - 3, y + i);
-        cell.setPlane();
-    }
-  }
-
-  private void setPlaneRight(Cell head) {
-    head.setHead();
-    int x = head.x;
-    int y = head.y;
-    for (int i = -2; i <= 2; i++) {
-      Cell cell = getCell(x + 1, y + i);
-      cell.setPlane();
-    }
-    Cell cellMiddle = getCell(x + 2, y);
-    cellMiddle.setPlane();
-    for (int i = -1; i <= 1; i++) {
-      Cell cell = getCell(x + 3, y + i);
-      cell.setPlane();
-    }
-  }
-
-  private void setPlaneUp(Cell head) {
-    head.setHead();
-    int x = head.x;
-    int y = head.y;
-    for (int i = -2; i <= 2; i++) {
-      Cell cell = getCell(x + i, y + 1);
-      cell.setPlane();
-    }
-    Cell cellMiddle = getCell(x, y + 2);
-    cellMiddle.setPlane();
-    for (int i = -1; i <= 1; i++) {
-      Cell cell = getCell(x + i, y + 3);
-      cell.setPlane();
-    }
-  }
-
-  private void setPlaneDown(Cell head) {
-    head.setHead();
-    int x = head.x;
-    int y = head.y;
-    for (int i = -2; i <= 2; i++) {
-      Cell cell = getCell(x + i, y - 1);
-      cell.setPlane();
-    }
-    Cell cellMiddle = getCell(x, y - 2);
-    cellMiddle.setPlane();
-    for (int i = -1; i <= 1; i++) {
-      Cell cell =getCell(x + i, y - 3);
-      cell.setPlane();
-    }
-  }
-
-  private boolean generateOnePlane(int x, int y) {
-        Cell cellTest = getCell(x, y);
-        if (checkHead(cellTest)) {
-          List<String> list = new ArrayList<>();
-          if (checkLeft(cellTest)) {
-            list.add("left");
+        int types = Integer.parseInt(typesString);
+        if (types < 1 || types > 8) {
+          System.out.println("Not a valid type. Please try again.");
+        } else {
+          switch (types) {
+            case 1:
+              planeType = "All same 1";
+              break;
+            case 2:
+              planeType = "All same 2";
+              break;
+            case 3:
+              planeType = "All same 3";
+              break;
+            case 4:
+              planeType = "1 & 2";
+              break;
+            case 5:
+              planeType = "2 & 3";
+              break;
+            case 6:
+              planeType = "1 & 3";
+              break;
+            case 7:
+              planeType = "1 & 2 & 3";
+              break;
+            case 8:
+              planeType = "Random";
+              break;
           }
-          if (checkRight(cellTest)) {
-            list.add("right");
-          }
-          if (checkUp(cellTest)) {
-            list.add("up");
-          }
-          if (checkDown(cellTest)) {
-            list.add("down");
-          }
-          if (list.size() == 0) {
-            return false;
-          } else {
-            String direction;
-            if (list.size() == 1) {
-              direction = list.get(0);
-            } else {
-              int random = new Random().nextInt(list.size() - 1);
-              direction = list.get(random);
-            }
-            switch (direction) {
-              case "left": setPlaneLeft(cellTest); break;
-              case "right": setPlaneRight(cellTest); break;
-              case "up": setPlaneUp(cellTest); break;
-              case "down": setPlaneDown(cellTest); break;
-            }
-            heads.add(cellTest);
-            return true;
-          }
+          stop1 = true;
         }
-    return false;
-  }
-
-  private void generatePlanes() {
-    while (heads.size() != 3) {
-      int x = (new Random().nextInt(size)) + 1;
-      int y = (new Random().nextInt(size)) + 1;
-      generateOnePlane(x, y);
-    }
-  }
-
-  private int XConvertToIndex(int x, int y) {
-    return size - y;
-  }
-
-  private int YConvertToIndex(int x, int y) {
-    return x - 1;
-  }
-
-  public void Click(int x, int y) {
-    int i = size - y;
-    int j = x - 1;
-    Cells.get(i).get(j).setClicked();
-  }
-
-  private Cell getCell(int x, int y) {
-    return Cells.get(XConvertToIndex(x, y)).get(YConvertToIndex(x, y));
-  }
-
-  public boolean headFound(int x, int y) {
-    Cell cell = getCell(x, y);
-    return cell.isHead;
-  }
-
-  public boolean end() {
-    for (Cell head : heads) {
-      if (!head.isClicked) {
-        return false;
+      } catch (Exception e) {
+        System.out.println("Not a number. Please try again.");
       }
     }
-    return true;
-  }
 
+    stop1 = false;
+    Board board = null;
+    while (!stop1) {
+      board = new Board(size);
+      boolean initializeSuccess = board.initialize(number, planeType);
+      if (!initializeSuccess) {
+        System.out.println("Fail to initialize, please try again.");
+        main(args);
+        return;
+      } else stop1 = true;
+    }
+    board.printPlaneTypes();
+//    board.printFinal();
+
+    int count = 0;
+    while (!board.end()) {
+      board.printCells();
+      boolean stop2 = false;
+      while (!stop2) {
+        System.out.println("Please input a coordinate, use space as delimeter.");
+        String input = sc.nextLine();
+        try {
+          int x = Integer.parseInt(input.split(" ")[0]);
+          int y = Integer.parseInt(input.split(" ")[1]);
+          board.Click(x, y);
+          if (board.headFound(x, y)) {
+            System.out.println("A plane found!\n");
+          }
+          stop2 = true;
+        } catch (Exception e) {
+          System.out.println("Wrong input or input out of bound. Please try again.");
+        }
+        stop2 = true;
+      }
+      count++;
+      if (board.end()) {
+        board.printCells();
+        System.out.println(
+            "You have found all the planes in " + count + " tries! Congratulations!\n");
+        board.printFinal();
+      }
+    }
+  }
 }

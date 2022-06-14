@@ -29,6 +29,10 @@ public class Cell {
         this.isClicked = true;
     }
 
+    public void setUnclicked() {
+        this.isClicked = false;
+    }
+
     public void print() {
         System.out.print("[ ]");
     }
