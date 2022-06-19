@@ -32,6 +32,10 @@ public abstract class Plane {
 
   abstract int getSize();
 
+  abstract void printPlane();
+
+  abstract PlaneType getType();
+
   public boolean generateOnePlane(int x, int y) {
     Cell cellTest = board.getCell(x, y);
     if (checkHead(cellTest)) {

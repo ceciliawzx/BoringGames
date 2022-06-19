@@ -1,33 +1,43 @@
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 
 public class Board {
 
   private final List<List<Cell>> Cells;
-  private final int size;
+  private final int area;
+  private final int width;
+  private final int height;
   private final List<Cell> heads;
   private final List<Plane> planes;
 
   // initialize the board
-  public Board(int size) {
+  public Board(int height, int width) {
     this.Cells = new ArrayList<>();
-    this.size = size;
+    this.height = height;
+    this.width = width;
+    this.area = height * width;
     this.heads = new ArrayList<>();
     this.planes = new ArrayList<>();
-    for (int i = 0; i < size; i++) {
+    for (int i = 0; i < height; i++) {
       Cells.add(new ArrayList<>());
-      for (int j = 0; j < size; j++) {
+      for (int j = 0; j < width; j++) {
         int x = j + 1;
-        int y = size - i;
+        int y = height - i;
         Cell newCell = new Cell(x, y);
         Cells.get(i).add(newCell);
       }
     }
   }
 
-  public int getSize() {
-    return size;
+  public int getArea() {
+    return area;
+  }
+
+  public List<Plane> getPlanes() {
+    return planes;
+  }
+
+  public List<Cell> getHeads() {
+    return heads;
   }
 
   public void addPlane(Plane plane) {
@@ -35,29 +45,29 @@ public class Board {
   }
 
   private void clickAllCells() {
-    for (int x = 1; x <= size; x++) {
-      for (int y = 1; y <= size; y++) {
+    for (int x = 1; x <= height; x++) {
+      for (int y = 1; y <= width; y++) {
         Click(x, y);
       }
     }
   }
 
   private void clearAllCells() {
-    for (int x = 1; x <= size; x++) {
-      for (int y = 1; y <= size; y++) {
+    for (int x = 1; x <= height; x++) {
+      for (int y = 1; y <= width; y++) {
         Unclick(x, y);
       }
     }
   }
 
   public void Click(int x, int y) {
-    int i = size - y;
+    int i = height - y;
     int j = x - 1;
     Cells.get(i).get(j).setClicked();
   }
 
   public void Unclick(int x, int y) {
-    int i = size - y;
+    int i = height - y;
     int j = x - 1;
     Cells.get(i).get(j).setUnclicked();
   }
@@ -68,7 +78,7 @@ public class Board {
 
   // convert coordinates to index
   private int XConvertToIndex(int x, int y) {
-    return size - y;
+    return height - y;
   }
 
   private int YConvertToIndex(int x, int y) {
@@ -91,11 +101,12 @@ public class Board {
   }
 
   public void printCells() {
-    for (int i = 0; i < size; i++) {
-      if ((size - i) >= 10) {
-        System.out.print((size - i) + " ");
-      } else System.out.print((size - i) + "  ");
-      for (int j = 0; j < size; j++) {
+    // y-coordinates
+    for (int i = 0; i < height; i++) {
+      if ((height - i) >= 10) {
+        System.out.print((height - i) + " ");
+      } else System.out.print((height - i) + "  ");
+      for (int j = 0; j < width; j++) {
         Cell cell = Cells.get(i).get(j);
         if (cell.isClicked) {
           cell.printReal();
@@ -103,18 +114,19 @@ public class Board {
       }
       System.out.println();
     }
+    // x-coordinates
     System.out.print("   ");
-    for (int i = 1; i <= size; i++) {
-      if (i >= 10) {
-        System.out.print(" " + i + "");
-      } else System.out.print(" " + i + " ");
+    for (int j = 1; j <= width; j++) {
+      if (j >= 10) {
+        System.out.print(" " + j + "");
+      } else System.out.print(" " + j + " ");
     }
     System.out.println();
   }
 
   // end if all the heads are found
   public boolean end() {
-    for (Cell head : heads) {
+    for (Cell head: heads) {
       if (!head.isClicked) {
         return false;
       }
@@ -124,20 +136,20 @@ public class Board {
 
   private boolean generatePlanesSame(int num, Plane plane) {
     Plane1 plane1 = new Plane1(this);
-    if ((plane.getClass() == plane1.getClass()) && size * size < num * 20) {
+    if ((plane.getClass() == plane1.getClass()) && area < num * 20) {
       return false;
-    } else if (!(plane.getClass() == plane1.getClass()) && size * size < num * 25) {
+    } else if (!(plane.getClass() == plane1.getClass()) && area < num * 25) {
       return false;
     }
     int count = 0;
     while (heads.size() != num) {
       count++;
-      if (count > (this.size * this.size * 200)) {
+      if (count > area * 200) {
         clearAllCells();
         return generatePlanesSame(num, plane);
       }
-      int x = (new Random().nextInt(size)) + 1;
-      int y = (new Random().nextInt(size)) + 1;
+      int x = (new Random().nextInt(width)) + 1;
+      int y = (new Random().nextInt(height)) + 1;
       plane.generateOnePlane(x, y);
     }
     return true;
@@ -160,14 +172,14 @@ public class Board {
         return generatePlanesSame(num, plane3);
       case "1 & 2":
         {
-          if (size * size < num * 20) return false;
+          if (area < num * 20) return false;
           numType = 2;
           root = 1;
           break;
         }
       case "2 & 3":
         {
-          if (size * size < num * 25) return false;
+          if (area < num * 25) return false;
           numType = 2;
           root = 2;
           break;
@@ -176,13 +188,13 @@ public class Board {
         {
           int chooseType = (new Random().nextInt(3));
           String newType = types[chooseType];
-          System.out.println(newType);
+//          System.out.println(newType);
           return generatePlanesSpecific(num, newType);
         }
       case "1 & 2 & 3":
       default:
         {
-          if (size * size < num * 20) return false;
+          if (area < num * 20) return false;
           numType = 3;
           root = 1;
         }
@@ -197,8 +209,8 @@ public class Board {
           random = 1;
         } else random = 3;
       } else random = (new Random().nextInt(numType)) + root;
-      int x = (new Random().nextInt(size)) + 1;
-      int y = (new Random().nextInt(size)) + 1;
+      int x = (new Random().nextInt(width)) + 1;
+      int y = (new Random().nextInt(height)) + 1;
       switch (random) {
         case 1:
           plane1.generateOnePlane(x, y);
@@ -211,7 +223,7 @@ public class Board {
           break;
       }
       count++;
-      if (count > (this.size * this.size * 200)) {
+      if (count > area * 200) {
         clearAllCells();
         return generatePlanesSpecific(num, type);
       }
@@ -220,17 +232,30 @@ public class Board {
   }
 
   public boolean initialize(int planesNum, String planesType) {
-    if (size * size < planesNum * 20) {
+    if (area < planesNum * 20) {
       return false;
     } else return generatePlanesSpecific(planesNum, planesType);
   }
 
   public void printPlaneTypes() {
-    StringBuilder res = new StringBuilder();
-    res.append("Plane types are:\n");
+    Map<Plane, Integer> planeTypes = new HashMap<>();
     for (Plane plane: this.planes) {
-      res.append(plane.toString()).append(' ');
+      if (planeTypes.containsKey(plane)) {
+        planeTypes.put(plane, planeTypes.get(plane)+1);
+      } else planeTypes.put(plane, 1);
     }
-    System.out.println(res);
+    for (Plane plane : planeTypes.keySet()) {
+      StringBuffer res = new StringBuffer();
+      System.out.println(res.append(plane).append(": ").append(planeTypes.get(plane)));
+      plane.printPlane();
+    }
+  }
+
+  public int getWidth() {
+    return width;
+  }
+
+  public int getHeight() {
+    return height;
   }
 }

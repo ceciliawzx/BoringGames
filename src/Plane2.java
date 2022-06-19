@@ -206,6 +206,22 @@ public class Plane2 extends Plane {
   }
 
   @Override
+  void printPlane() {
+    System.out.println("""
+                 *
+                 *
+           *  *  *  *  *
+                 *
+              *     *
+            """);
+  }
+
+  @Override
+  PlaneType getType() {
+    return PlaneType.PLANE2;
+  }
+
+  @Override
   public String toString() {
     return "Plane2";
   }

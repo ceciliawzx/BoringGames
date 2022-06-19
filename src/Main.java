@@ -6,18 +6,33 @@ public class Main {
 
     boolean stop1 = false;
     Scanner sc = new Scanner(System.in);
-    int size = 0;
+    int width = 0;
+    int height = 0;
     int number = 0;
     String planeType = "";
 
-    // read size
+    // read width and height
     while (!stop1) {
-      System.out.println("Please input size of the board:");
-      String sizeInput = sc.nextLine();
+      System.out.println("Please input width of the board:");
+      String widthInput = sc.nextLine();
       try {
-        size = Integer.parseInt(sizeInput);
-        if (size < 5) {
-          System.out.println("Not a valid size. Please try again.");
+        width = Integer.parseInt(widthInput);
+        if (width < 5) {
+          System.out.println("Not a valid width (5 <= width < 100). Please try again.");
+        } else stop1 = true;
+      } catch (Exception e) {
+        System.out.println("Not a number, please try again.");
+      }
+    }
+    stop1 = false;
+
+    while (!stop1) {
+      System.out.println("Please input height of the board:");
+      String heightInput = sc.nextLine();
+      try {
+        height = Integer.parseInt(heightInput);
+        if (height < 5) {
+          System.out.println("Not a valid height (5 <= height < 100). Please try again.");
         } else stop1 = true;
       } catch (Exception e) {
         System.out.println("Not a number, please try again.");
@@ -95,7 +110,7 @@ public class Main {
     stop1 = false;
     Board board = null;
     while (!stop1) {
-      board = new Board(size);
+      board = new Board(height, width);
       boolean initializeSuccess = board.initialize(number, planeType);
       if (!initializeSuccess) {
         System.out.println("Fail to initialize, please try again.");
@@ -116,21 +131,30 @@ public class Main {
         try {
           int x = Integer.parseInt(input.split(" ")[0]);
           int y = Integer.parseInt(input.split(" ")[1]);
-          board.Click(x, y);
-          if (board.headFound(x, y)) {
-            System.out.println("A plane found!\n");
+          if (board.getCell(x, y).isClicked) {
+            System.out.println("Already clicked. Please try again");
+          } else {
+            board.Click(x, y);
+            if (board.headFound(x, y)) {
+              String res = "";
+              for (int i = 0; i < board.getHeads().size(); i++) {
+                if (board.getHeads().get(i).equals(new Cell(x, y))) {
+                  res = board.getPlanes().get(i).toString();
+                }
+              }
+              System.out.println("*********A " + res + " found*********\n");
+            }
+            stop2 = true;
           }
-          stop2 = true;
         } catch (Exception e) {
           System.out.println("Wrong input or input out of bound. Please try again.");
         }
-        stop2 = true;
       }
       count++;
       if (board.end()) {
         board.printCells();
         System.out.println(
-            "You have found all the planes in " + count + " tries! Congratulations!\n");
+            "*****You have found all the planes in " + count + " tries! Congratulations!*****\n");
         board.printFinal();
       }
     }
